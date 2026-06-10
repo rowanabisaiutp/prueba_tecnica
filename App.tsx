@@ -1,37 +1,14 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
-  );
-}
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
+export default function App() {
   return (
     <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
+      <StatusBar style="auto" />
+      <Text style={styles.title}>MiProyecto</Text>
+      <Text style={styles.subtitle}>
+        Base preparada para React Native + Expo + TypeScript.
+      </Text>
     </View>
   );
 }
@@ -39,7 +16,21 @@ function AppContent() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: '#F7F7FB',
+  },
+  title: {
+    marginBottom: 12,
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  subtitle: {
+    textAlign: 'center',
+    fontSize: 16,
+    lineHeight: 24,
+    color: '#4B5563',
   },
 });
-
-export default App;
