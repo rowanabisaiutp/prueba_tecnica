@@ -1,4 +1,9 @@
 {
   "name": "MiProyecto",
-  "displayName": "MiProyecto"
+  "displayName": "MiProyecto",
+  "extra": {
+    "eas": {
+      "projectId": "1fa874f3-0249-4430-898c-65c7798ffc46"
+    }
+  }
 }
