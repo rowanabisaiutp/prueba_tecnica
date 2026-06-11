@@ -11,8 +11,7 @@
       ]
     },
     "skipLibCheck": true,
-    "noEmit": true,
-    "typeRoots": ["./src", "./node_modules/@types"]
+    "noEmit": true
   },
   "include": [
     "**/*.ts",
