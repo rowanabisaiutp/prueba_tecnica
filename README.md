@@ -1,4 +1,4 @@
-# MiProyecto
+# offerd app
 
 Aplicación móvil (iOS y Android) para crear y consultar ofertas con multimedia. Construida con Expo SDK 56 + API backend propia.
 
