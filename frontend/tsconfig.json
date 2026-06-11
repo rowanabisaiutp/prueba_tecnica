@@ -11,7 +11,9 @@
       ]
     },
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true
   },
   "include": [
     "**/*.ts",
@@ -20,6 +22,7 @@
     "expo-env.d.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/*.css"
   ]
 }
