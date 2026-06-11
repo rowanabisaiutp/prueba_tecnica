@@ -8,6 +8,7 @@ export type MediaFile = {
   uri: string;
   name: string;
   type: string;
+  size: number;
   thumbnail?: VideoThumbnail;
 };
 
@@ -44,3 +45,10 @@ export type CreateItemPayload = {
   fechaInicio: string;
   fechaFin: string;
 };
+
+export const MAX_FILE_SIZE_MB = 100;
+export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+export const MAX_FILE_COUNT = 10;
+export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+export const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/3gpp', 'video/x-msvideo'];
+export const ALLOWED_MIME_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES];

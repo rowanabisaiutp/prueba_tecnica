@@ -1,3 +1,5 @@
+import { MulterError } from 'multer';
+
 import cors from 'cors';
 import express from 'express';
 
@@ -23,6 +25,23 @@ export function createApp() {
   });
 
   app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    if (error instanceof MulterError) {
+      if (error.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ message: 'El archivo supera el límite de 100 MB' });
+      }
+      if (error.code === 'LIMIT_FILE_COUNT') {
+        return res.status(413).json({ message: `Máximo ${10} archivos permitidos` });
+      }
+      if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+        return res.status(400).json({ message: 'Campo de archivo inesperado' });
+      }
+      return res.status(400).json({ message: error.message });
+    }
+
+    if (error.message?.includes('Tipo de archivo no permitido')) {
+      return res.status(415).json({ message: error.message });
+    }
+
     res.status(500).json({ message: error.message || 'Error interno del servidor' });
   });
 

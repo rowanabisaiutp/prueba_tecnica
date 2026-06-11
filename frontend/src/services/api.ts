@@ -16,7 +16,8 @@ export async function getItems(): Promise<Item[]> {
 
 export async function createItem(
   payload: CreateItemPayload,
-  mediaUris: { uri: string; name: string; type: string }[],
+  mediaFiles: { uri: string; name: string; type: string }[],
+  onProgress?: (fraction: number) => void,
 ): Promise<Item> {
   const formData = new FormData();
 
@@ -28,7 +29,7 @@ export async function createItem(
   formData.append('fechaInicio', payload.fechaInicio);
   formData.append('fechaFin', payload.fechaFin);
 
-  mediaUris.forEach((media) => {
+  mediaFiles.forEach((media) => {
     const file = {
       uri: media.uri,
       name: media.name,
@@ -39,9 +40,13 @@ export async function createItem(
 
   const res = await api.post<{ message: string; item: Item }>('/items', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 300000,
+    onUploadProgress: (event) => {
+      if (event.total && onProgress) {
+        onProgress(event.loaded / event.total);
+      }
+    },
   });
 
   return res.data.item;
 }
-
-

@@ -6,6 +6,7 @@ import { ThemedView } from '@/components/themed-view';
 import { ErrorRed, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import type { MediaFile } from '@/types/item';
+import { MAX_FILE_COUNT } from '@/types/item';
 
 type Props = {
   media: MediaFile[];
@@ -15,16 +16,27 @@ type Props = {
   onRemove: (index: number) => void;
 };
 
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
 export function MediaPickerGrid({ media, error, onPickFromCamera, onPickFromGallery, onRemove }: Props) {
   const theme = useTheme();
 
   return (
     <ThemedView type="backgroundElement" style={styles.section}>
-      <ThemedText type="smallBold" style={styles.sectionTitle}>
-        Multimedia
-      </ThemedText>
+      <View style={styles.sectionHeader}>
+        <ThemedText type="smallBold" style={styles.sectionTitle}>
+          Multimedia
+        </ThemedText>
+        <ThemedText type="small" themeColor="textSecondary">
+          {media.length}/{MAX_FILE_COUNT}
+        </ThemedText>
+      </View>
       <ThemedText type="small" themeColor="textSecondary" style={styles.mediaHint}>
-        Sube imágenes o videos desde la cámara o galería
+        Sube imágenes (JPG, PNG, WEBP) o videos (MP4, MOV). Máximo 100 MB por archivo.
       </ThemedText>
 
       <View style={styles.mediaButtons}>
@@ -49,25 +61,40 @@ export function MediaPickerGrid({ media, error, onPickFromCamera, onPickFromGall
 
       {media.length > 0 && (
         <View style={styles.mediaGrid}>
-          {media.map((m, i) => (
-            <View key={i} style={styles.mediaPreviewCard}>
-        {m.type.startsWith('image') ? (
-          <Image source={{ uri: m.uri }} style={styles.mediaThumb} />
-        ) : m.thumbnail ? (
-          <Image source={m.thumbnail} style={styles.mediaThumb} />
-        ) : (
-                <View style={[styles.mediaThumb, styles.videoThumb, { backgroundColor: theme.background }]}>
-                  <ThemedText style={styles.videoIcon}>🎬</ThemedText>
-                </View>
-              )}
-              <TouchableOpacity style={styles.mediaRemoveBtn} onPress={() => onRemove(i)}>
-                <ThemedText style={styles.mediaRemoveBtnText}>✕</ThemedText>
-              </TouchableOpacity>
-              <ThemedText type="small" numberOfLines={1} style={styles.mediaFileName}>
-                {m.name}
-              </ThemedText>
-            </View>
-          ))}
+          {media.map((m, i) => {
+            const isVideo = m.type.startsWith('video');
+            return (
+              <View key={i} style={styles.mediaPreviewCard}>
+                {isVideo ? (
+                  m.thumbnail ? (
+                    <View style={styles.thumbWrapper}>
+                      <Image source={m.thumbnail} style={styles.mediaThumb} />
+                      <View style={styles.videoBadge}>
+                        <ThemedText style={styles.videoBadgeText}>VIDEO</ThemedText>
+                      </View>
+                    </View>
+                  ) : (
+                    <View style={[styles.mediaThumb, styles.videoThumb, { backgroundColor: theme.background }]}>
+                      <ThemedText style={styles.videoIcon}>🎬</ThemedText>
+                    </View>
+                  )
+                ) : (
+                  <Image source={{ uri: m.uri }} style={styles.mediaThumb} />
+                )}
+                <TouchableOpacity style={styles.mediaRemoveBtn} onPress={() => onRemove(i)}>
+                  <ThemedText style={styles.mediaRemoveBtnText}>✕</ThemedText>
+                </TouchableOpacity>
+                <ThemedText type="small" numberOfLines={1} style={styles.mediaFileName}>
+                  {m.name}
+                </ThemedText>
+                {m.size > 0 && (
+                  <ThemedText type="small" themeColor="textSecondary" style={styles.mediaFileSize}>
+                    {formatFileSize(m.size)}
+                  </ThemedText>
+                )}
+              </View>
+            );
+          })}
         </View>
       )}
     </ThemedView>
@@ -79,6 +106,11 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     padding: Spacing.three,
     gap: Spacing.three,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   sectionTitle: {
     fontSize: 15,
@@ -116,6 +148,9 @@ const styles = StyleSheet.create({
     width: '48%',
     position: 'relative',
   },
+  thumbWrapper: {
+    position: 'relative',
+  },
   mediaThumb: {
     width: '100%',
     aspectRatio: 1,
@@ -127,6 +162,21 @@ const styles = StyleSheet.create({
   },
   videoIcon: {
     fontSize: 32,
+  },
+  videoBadge: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  videoBadgeText: {
+    color: '#fff',
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   mediaRemoveBtn: {
     position: 'absolute',
@@ -147,6 +197,9 @@ const styles = StyleSheet.create({
   mediaFileName: {
     marginTop: Spacing.one,
     fontSize: 11,
+  },
+  mediaFileSize: {
+    fontSize: 10,
   },
   errorText: {
     color: ErrorRed,

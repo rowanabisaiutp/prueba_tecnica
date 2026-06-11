@@ -1,12 +1,19 @@
 import { z } from 'zod';
 
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif',
+  'video/mp4', 'video/quicktime', 'video/3gpp', 'video/x-msvideo',
+];
+
 const fileSchema = z.object({
   fieldname: z.string().min(1),
   originalname: z.string().min(1),
-  mimetype: z.string().regex(/^(image|video)\//, 'La multimedia debe ser imagen o video'),
+  mimetype: z.enum(ALLOWED_MIME_TYPES as [string, ...string[]], {
+    message: `Tipo de archivo no permitido. Formatos aceptados: JPG, PNG, WEBP, MP4, MOV`,
+  }),
   filename: z.string().min(1),
   path: z.string().min(1),
-  size: z.number().int().positive(),
+  size: z.number().int().positive().max(100 * 1024 * 1024, 'El archivo supera el límite de 100 MB'),
 });
 
 export const createItemSchema = z
@@ -20,7 +27,7 @@ export const createItemSchema = z
     descuento: z.coerce.number(),
     fechaInicio: z.string().trim().min(1, 'La fecha de inicio es obligatoria'),
     fechaFin: z.string().trim().min(1, 'La fecha de fin es obligatoria'),
-    multimedia: z.array(fileSchema).min(1, 'Debe adjuntar al menos un archivo multimedia'),
+    multimedia: z.array(fileSchema).min(1, 'Debe adjuntar al menos un archivo multimedia').max(10, 'Máximo 10 archivos'),
   })
   .superRefine((data, ctx) => {
     const fechaInicio = new Date(data.fechaInicio);

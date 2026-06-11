@@ -9,6 +9,13 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+const MAX_FILE_SIZE = 100 * 1024 * 1024;
+const MAX_FILE_COUNT = 10;
+const ALLOWED_MIME_TYPES = new Set([
+  'image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif',
+  'video/mp4', 'video/quicktime', 'video/3gpp', 'video/x-msvideo',
+]);
+
 const storage = multer.diskStorage({
   destination: (_req, _file, callback) => {
     callback(null, uploadDir);
@@ -22,15 +29,15 @@ const storage = multer.diskStorage({
 export const uploadMedia = multer({
   storage,
   limits: {
-    fileSize: 25 * 1024 * 1024,
-    files: 10,
+    fileSize: MAX_FILE_SIZE,
+    files: MAX_FILE_COUNT,
   },
   fileFilter: (_req, file, callback) => {
-    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+    if (ALLOWED_MIME_TYPES.has(file.mimetype)) {
       callback(null, true);
       return;
     }
 
-    callback(new Error('Solo se permiten imágenes o videos'));
+    callback(new Error(`Tipo de archivo no permitido: ${file.mimetype}. Formatos aceptados: JPG, PNG, WEBP, MP4, MOV`));
   },
-}).array('multimedia', 10);
+}).array('multimedia', MAX_FILE_COUNT);

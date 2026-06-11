@@ -132,12 +132,13 @@ export default function CreateScreen() {
               />
 
               <View style={styles.submitContainer}>
-                <SubmitButton
-                  title="Crear Item"
-                  loading={form.submitting}
-                  onPress={form.handleSubmit}
-                  disabled={form.submitting}
-                />
+        <SubmitButton
+          title="Crear Item"
+          loading={form.submitting}
+          onPress={form.handleSubmit}
+          disabled={form.submitting}
+          progress={form.uploadProgress}
+        />
               </View>
 
               <View style={styles.bottomSpacer} />
