@@ -1,5 +1,6 @@
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 import { DatePickerField } from '@/components/date-picker-field';
 import { FormField } from '@/components/form-field';
@@ -8,11 +9,12 @@ import { SubmitButton } from '@/components/submit-button';
 import { TipoOfertaPicker } from '@/components/tipo-oferta-picker';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { AccentBlue, AccentBlueLight, MaxContentWidth, Spacing } from '@/constants/theme';
+import { AccentBlue, AccentBlueLight, ErrorRed, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useCreateItemForm } from '@/hooks/use-create-item-form';
 
 export default function CreateScreen() {
   const form = useCreateItemForm();
+  const router = useRouter();
 
   const descuentoLabel = form.tipoOferta === 'money' ? 'Descuento en dinero ($)' : 'Descuento en porcentaje (%)';
   const descuentoPlaceholder = form.tipoOferta === 'money' ? 'Ej: 500' : 'Ej: 15';
@@ -131,15 +133,25 @@ export default function CreateScreen() {
                 onRemove={form.removeMedia}
               />
 
-              <View style={styles.submitContainer}>
-        <SubmitButton
-          title="Crear Item"
-          loading={form.submitting}
-          onPress={form.handleSubmit}
-          disabled={form.submitting}
-          progress={form.uploadProgress}
-        />
-              </View>
+          <View style={styles.buttonsRow}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => { form.resetForm(); router.back(); }}
+              disabled={form.submitting}
+              activeOpacity={0.7}
+            >
+              <ThemedText style={styles.cancelButtonText}>Cancelar</ThemedText>
+            </TouchableOpacity>
+            <View style={styles.submitWrapper}>
+              <SubmitButton
+                title="Crear Item"
+                loading={form.submitting}
+                onPress={form.handleSubmit}
+                disabled={form.submitting}
+                progress={form.uploadProgress}
+              />
+            </View>
+          </View>
 
               <View style={styles.bottomSpacer} />
             </View>
@@ -199,6 +211,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.three,
   },
-  submitContainer: { paddingTop: Spacing.two },
+  buttonsRow: {
+    flexDirection: 'row',
+    gap: Spacing.three,
+    paddingTop: Spacing.two,
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: Spacing.three,
+    borderRadius: Spacing.three,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: ErrorRed,
+  },
+  cancelButtonText: {
+    color: ErrorRed,
+    fontWeight: '700',
+    fontSize: 15,
+    letterSpacing: 0.3,
+  },
+  submitWrapper: {
+    flex: 1,
+  },
   bottomSpacer: { height: Spacing.six },
 });

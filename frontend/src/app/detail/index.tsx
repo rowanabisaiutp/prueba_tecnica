@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import { ItemCard } from '@/components/item-card';
@@ -27,11 +26,9 @@ export default function HomeScreen() {
   if (loading) {
     return (
       <ThemedView style={styles.container}>
-        <SafeAreaView style={styles.safeArea}>
-          <ThemedView style={styles.centerState}>
-            <ThemedText themeColor="textSecondary">Cargando...</ThemedText>
-          </ThemedView>
-        </SafeAreaView>
+        <ThemedView style={styles.centerState}>
+          <ThemedText themeColor="textSecondary">Cargando...</ThemedText>
+        </ThemedView>
       </ThemedView>
     );
   }
@@ -39,80 +36,78 @@ export default function HomeScreen() {
   if (error) {
     return (
       <ThemedView style={styles.container}>
-        <SafeAreaView style={styles.safeArea}>
-          <ThemedView style={styles.centerState}>
-            <ThemedText type="subtitle" style={styles.errorTitle}>Error de conexión</ThemedText>
-            <ThemedText themeColor="textSecondary" style={styles.errorMsg}>{error}</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary" style={styles.errorHint}>
-              Verifica que el backend esté corriendo en {API_BASE}
-            </ThemedText>
-          </ThemedView>
-        </SafeAreaView>
+        <ThemedView style={styles.centerState}>
+          <ThemedText type="subtitle" style={styles.errorTitle}>Error de conexión</ThemedText>
+          <ThemedText themeColor="textSecondary" style={styles.errorMsg}>{error}</ThemedText>
+          <ThemedText type="small" themeColor="textSecondary" style={styles.errorHint}>
+            Verifica que el backend esté corriendo en {API_BASE}
+          </ThemedText>
+        </ThemedView>
       </ThemedView>
     );
   }
 
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <FlatList
-          data={filteredItems}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <ItemCard
-              item={item}
-              onPress={() => {
-                setSelectedItem(item);
-                router.navigate('/detail/item');
-              }}
-            />
-          )}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            items.length === 0 ? (
-              <ThemedView style={styles.centerState}>
-                <ThemedText type="subtitle" style={styles.emptyTitle}>No hay items</ThemedText>
-                <ThemedText themeColor="textSecondary" style={styles.emptySubtitle}>
-                  Crea tu primer item usando el tab "Crear"
-                </ThemedText>
-              </ThemedView>
-            ) : (
-              <ThemedView style={styles.centerState}>
-                <ThemedText themeColor="textSecondary" style={styles.emptySubtitle}>
-                  No se encontraron resultados
-                </ThemedText>
-              </ThemedView>
-            )
-          }
-          ListHeaderComponent={
-            <ItemSearchHeader
-              search={search}
-              onSearchChange={setSearch}
-              filter={filter}
-              onFilterChange={setFilter}
-              resultCount={`${filteredItems.length} de ${items.length} items`}
-            />
-          }
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.text} />
-          }
-        />
-      </SafeAreaView>
+      <FlatList
+        data={filteredItems}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <ItemCard
+            item={item}
+            onPress={() => {
+              setSelectedItem(item);
+              router.navigate('/detail/item');
+            }}
+          />
+        )}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          items.length === 0 ? (
+            <ThemedView style={styles.centerState}>
+              <ThemedText type="subtitle" style={styles.emptyTitle}>No hay items</ThemedText>
+              <ThemedText themeColor="textSecondary" style={styles.emptySubtitle}>
+                Crea tu primer item usando el tab "Crear"
+              </ThemedText>
+            </ThemedView>
+          ) : (
+            <ThemedView style={styles.centerState}>
+              <ThemedText themeColor="textSecondary" style={styles.emptySubtitle}>
+                No se encontraron resultados
+              </ThemedText>
+            </ThemedView>
+          )
+        }
+        ListHeaderComponent={
+          <ItemSearchHeader
+            search={search}
+            onSearchChange={setSearch}
+            filter={filter}
+            onFilterChange={setFilter}
+            resultCount={`${filteredItems.length} de ${items.length} items`}
+          />
+        }
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.text} />
+        }
+      />
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1 },
   listContent: {
     paddingHorizontal: Spacing.four,
+    paddingTop: Spacing.two,
+    paddingBottom: Spacing.four,
     gap: Spacing.three,
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
     width: '100%',
   },
   centerState: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     gap: Spacing.three,

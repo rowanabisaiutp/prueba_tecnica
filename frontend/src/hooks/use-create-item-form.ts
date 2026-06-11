@@ -213,7 +213,7 @@ export function useCreateItemForm() {
     showFechaFin, setShowFechaFin,
     showTipoMenu, setShowTipoMenu,
     errors, setErrors, clearFieldError,
-    submitting, handleSubmit,
+    submitting, handleSubmit, resetForm,
     uploadProgress,
     media, pickMedia, removeMedia,
   };

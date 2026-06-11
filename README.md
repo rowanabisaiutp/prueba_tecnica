@@ -36,6 +36,74 @@ Aplicación móvil (iOS y Android) para crear y consultar ofertas con multimedia
 
 Necesitas **Node ≥ 20** y **PostgreSQL**.
 
+### Con Docker (recomendado)
+
+Requisitos: [Docker](https://docs.docker.com/get-docker/) + [Docker Compose](https://docs.docker.com/compose/install/).
+
+#### Backend + PostgreSQL
+
+```bash
+# Levantar backend y base de datos
+docker compose up -d postgres backend
+```
+
+Esto inicia:
+- **PostgreSQL** en `localhost:5432` (usuario: `postgres`, password: `postgres`, db: `miproyecto`)
+- **Backend API** en `localhost:4000` (con auto-migración del schema)
+
+La base de datos se persiste en el volumen `postgres_data`. Los archivos subidos se guardan en `./backend/uploads/`.
+
+#### Solo PostgreSQL (para desarrollo local del backend)
+
+```bash
+docker compose up -d postgres
+# Espera a que esté healthy, luego:
+cd backend
+npm install
+cp .env.example .env
+npm run dev
+```
+
+#### Detener y limpiar
+
+```bash
+# Detener contenedores
+docker compose down
+
+# Detener y borrar volumen de base de datos
+docker compose down -v
+```
+
+#### Variables de entorno del backend en Docker
+
+| Variable | Default en compose | Descripción |
+|----------|--------------------|-------------|
+| `PORT` | `4000` | Puerto de la API |
+| `CORS_ORIGIN` | `*` | Origen permitido para CORS |
+| `DATABASE_URL` | `postgresql://postgres:postgres@postgres:5432/miproyecto` | URL de conexión a PostgreSQL |
+
+#### Frontend con Docker (servir build web)
+
+Para servir la app web (React Native Web) desde Docker:
+
+```bash
+# Build de producción
+cd frontend
+npx expo export --platform web
+
+# Crear imagen y servir
+docker build -t miproyecto-frontend .
+docker run -p 3000:80 miproyecto-frontend
+```
+
+La app web se sirve en `http://localhost:3000`. Necesitas configurar `EXPO_PUBLIC_API_URL` al crear el build:
+
+```bash
+EXPO_PUBLIC_API_URL=http://localhost:4000/api npx expo export --platform web
+```
+
+### Sin Docker (desarrollo local)
+
 ### Backend
 
 ```bash
