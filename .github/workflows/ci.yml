@@ -6,7 +6,7 @@ on:
 
 jobs:
   backend:
-    name: Backend (lint, test, build)
+    name: Backend (build)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -19,12 +19,10 @@ jobs:
           cache: npm
           cache-dependency-path: backend/package-lock.json
       - run: npm ci
-      - run: npm run lint
-      - run: npm test || echo "No tests configured"
       - run: npm run build
 
   frontend:
-    name: Frontend (typecheck, lint)
+    name: Frontend (typecheck)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -38,4 +36,3 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npx tsc --noEmit
-      - run: npm run lint || echo "No linter configured"

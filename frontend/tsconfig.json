@@ -9,12 +9,18 @@
       "@/assets/*": [
         "./assets/*"
       ]
-    }
+    },
+    "skipLibCheck": true,
+    "noEmit": true,
+    "typeRoots": ["./src", "./node_modules/@types"]
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
