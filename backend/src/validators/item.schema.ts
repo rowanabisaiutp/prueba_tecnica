@@ -13,7 +13,7 @@ export const createItemSchema = z
   .object({
     nombre: z.string().trim().min(1, 'El nombre es obligatorio').max(120),
     descripcion: z.string().trim().min(1, 'La descripción es obligatoria').max(1000),
-    precio: z.coerce.number().positive('El precio debe ser mayor a 0'),
+    precio: z.coerce.number().min(0, 'El precio debe ser mayor o igual a 0'),
     tipoOferta: z.enum(['money', 'percentage'], {
       required_error: 'El tipo de oferta es obligatorio',
     }),

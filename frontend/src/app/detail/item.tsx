@@ -2,65 +2,14 @@ import { Image } from 'expo-image';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { MediaViewer } from '@/components/media-viewer';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { AccentBlue, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { API_BASE } from '@/services/api';
 import { getSelectedItem } from '@/services/item-store';
-import type { Item, ItemMedia } from '@/types/item';
-
-function getMediaUrl(media: ItemMedia): string {
-  const filename = media.filename || media.path?.split('/').pop();
-  if (!filename) return '';
-  return `${API_BASE.replace('/api', '')}/uploads/${filename}`;
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
-function formatDiscount(item: Item) {
-  return item.tipoOferta === 'percentage'
-    ? `${item.descuento}%`
-    : `$${item.descuento.toFixed(2)}`;
-}
-
-function MediaViewer({ mediaList }: { mediaList: ItemMedia[] }) {
-  return (
-    <View style={styles.mediaSection}>
-      <ThemedText type="smallBold" style={styles.sectionLabel}>Multimedia</ThemedText>
-      <View style={styles.mediaGrid}>
-        {mediaList.map((media, i) => {
-          const url = getMediaUrl(media);
-          const isVideo = media.mimetype.startsWith('video/');
-
-          return (
-            <View key={i} style={styles.mediaItem}>
-              {isVideo ? (
-                <ThemedView type="backgroundElement" style={styles.videoCard}>
-                  <ThemedText style={styles.videoEmoji}>🎬</ThemedText>
-                  <ThemedText type="small" numberOfLines={1} style={styles.mediaFileName}>
-                    {media.originalname}
-                  </ThemedText>
-                  <ThemedText type="small" themeColor="textSecondary">
-                    {(media.size / 1024 / 1024).toFixed(1)} MB
-                  </ThemedText>
-                </ThemedView>
-              ) : (
-                <Image source={{ uri: url }} style={styles.mediaImage} contentFit="cover" />
-              )}
-            </View>
-          );
-        })}
-      </View>
-    </View>
-  );
-}
+import { formatDate, formatDiscount } from '@/utils/format';
+import { calculateFinalPrice, getMediaUrl } from '@/utils/media';
 
 export default function DetailScreen() {
   const theme = useTheme();
@@ -90,12 +39,6 @@ export default function DetailScreen() {
               style={styles.heroImage}
               contentFit="cover"
             />
-          )}
-
-          {item.multimedia.length > 0 && !firstImage && (
-            <ThemedView type="backgroundElement" style={styles.heroVideo}>
-              <ThemedText style={{ fontSize: 64 }}>🎬</ThemedText>
-            </ThemedView>
           )}
 
           <View style={styles.content}>
@@ -131,20 +74,9 @@ export default function DetailScreen() {
 
             <ThemedView type="backgroundElement" style={styles.priceCard}>
               <ThemedText type="small" themeColor="textSecondary">Precio final</ThemedText>
-              {(() => {
-                let finalPrice = item.precio;
-                if (item.tipoOferta === 'percentage') {
-                  finalPrice = item.precio * (1 - item.descuento / 100);
-                } else {
-                  finalPrice = item.precio - item.descuento;
-                }
-                if (finalPrice < 0) finalPrice = 0;
-                return (
-                  <ThemedText style={styles.finalPrice}>
-                    ${finalPrice.toFixed(2)}
-                  </ThemedText>
-                );
-              })()}
+              <ThemedText style={styles.finalPrice}>
+                ${calculateFinalPrice(item).toFixed(2)}
+              </ThemedText>
             </ThemedView>
 
             <ThemedView type="backgroundElement" style={styles.datesCard}>
@@ -176,24 +108,12 @@ export default function DetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
+  container: { flex: 1 },
+  safeArea: { flex: 1 },
+  scrollContent: { flexGrow: 1 },
   heroImage: {
     width: '100%',
     aspectRatio: 16 / 9,
-  },
-  heroVideo: {
-    width: '100%',
-    aspectRatio: 16 / 9,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   content: {
     paddingHorizontal: Spacing.four,
@@ -201,14 +121,8 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.six,
     gap: Spacing.three,
   },
-  itemName: {
-    fontSize: 24,
-    lineHeight: 30,
-  },
-  itemDesc: {
-    fontSize: 15,
-    lineHeight: 22,
-  },
+  itemName: { fontSize: 24, lineHeight: 30 },
+  itemDesc: { fontSize: 15, lineHeight: 22 },
   infoCard: {
     borderRadius: Spacing.three,
     padding: Spacing.three,
@@ -226,9 +140,7 @@ const styles = StyleSheet.create({
     width: 1,
     height: 40,
   },
-  infoValue: {
-    fontSize: 16,
-  },
+  infoValue: { fontSize: 16 },
   priceCard: {
     borderRadius: Spacing.three,
     padding: Spacing.three,
@@ -238,7 +150,7 @@ const styles = StyleSheet.create({
   finalPrice: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#208AEF',
+    color: AccentBlue,
   },
   datesCard: {
     borderRadius: Spacing.three,
@@ -253,40 +165,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.four,
   },
-  dateItem: {
-    gap: 2,
-  },
-  mediaSection: {
-    gap: Spacing.two,
-  },
-  mediaGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.two,
-  },
-  mediaItem: {
-    width: '48%',
-  },
-  mediaImage: {
-    width: '100%',
-    aspectRatio: 1,
-    borderRadius: Spacing.two,
-  },
-  videoCard: {
-    width: '100%',
-    aspectRatio: 1,
-    borderRadius: Spacing.two,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  videoEmoji: {
-    fontSize: 36,
-  },
-  mediaFileName: {
-    fontSize: 11,
-    paddingHorizontal: Spacing.two,
-  },
+  dateItem: { gap: 2 },
   centerState: {
     flex: 1,
     justifyContent: 'center',

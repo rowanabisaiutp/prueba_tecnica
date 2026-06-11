@@ -10,6 +10,4 @@ export function getSelectedItem(): Item | null {
   return _selectedItem;
 }
 
-export function clearSelectedItem() {
-  _selectedItem = null;
-}
+

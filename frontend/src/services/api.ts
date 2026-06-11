@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import type { CreateItemPayload, Item } from '@/types/item';
 
-export const API_BASE = 'http://192.168.2.115:4000/api';
+export const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -44,11 +44,4 @@ export async function createItem(
   return res.data.item;
 }
 
-export async function healthCheck(): Promise<boolean> {
-  try {
-    const res = await api.get('/health');
-    return res.data.ok === true;
-  } catch {
-    return false;
-  }
-}
+
